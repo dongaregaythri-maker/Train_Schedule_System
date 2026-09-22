@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}{% if edit %}Edit{% else %}Add{% endif %} Train — TrainSched{% endblock %}
+{% block content %}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h5 class="fw-semibold mb-0">{% if edit %}Edit Train {{ train.train_id }}{% else %}Add New Train{% endif %}</h5>
+    <p class="text-muted small mb-0">Enter all train details, maintenance, fitness and branding information</p>
+  </div>
+  <a href="{{ url_for('trains.list_trains') }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back
+  </a>
+</div>
+
+{% if result and not result.success %}
+<div class="alert alert-danger">
+  <strong>Error:</strong> {{ result.message }}
+  {% if result.errors %}
+  <ul class="mb-0 mt-1">
+    {% for e in result.errors %}<li>{{ e }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endif %}
+{% if errors %}
+<div class="alert alert-danger">
+  {% for e in errors %}<div>{{ e }}</div>{% endfor %}
+</div>
+{% endif %}
+
+<form method="POST">
+<div class="row g-3">
+  <!-- Train Details -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold border-bottom py-2 px-3">
+        <i class="bi bi-train-front me-2 text-primary"></i>Train Details
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Train ID <span class="text-danger">*</span></label>
+          <input type="text" name="train_id" class="form-control form-control-sm"
+                 value="{{ train.train_id if train else '' }}"
+                 {% if edit %}readonly{% endif %} placeholder="T13" required/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Mileage (km)</label>
+          <input type="number" name="mileage" class="form-control form-control-sm"
+                 value="{{ train.mileage if train else '' }}" placeholder="45000" min="0"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Position / Location</label>
+          <input type="text" name="position" class="form-control form-control-sm"
+                 value="{{ train.position if train else '' }}" placeholder="Platform 3A"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fitness -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold border-bottom py-2 px-3">
+        <i class="bi bi-shield-check me-2 text-success"></i>Fitness Certificate
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Valid Until <span class="text-danger">*</span></label>
+          <input type="date" name="fitness_valid_upto" class="form-control form-control-sm"
+                 value="{{ train.valid_upto if train else '' }}" required/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Certificate Number</label>
+          <input type="text" name="certificate_no" class="form-control form-control-sm" placeholder="CERT-2024-001"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold border-bottom py-2 px-3">
+        <i class="bi bi-tools me-2 text-warning"></i>Maintenance
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Maintenance Status</label>
+          <select name="maint_status" class="form-select form-select-sm">
+            <option value="ok" {% if train and train.maint_status=='ok' %}selected{% endif %}>OK</option>
+            <option value="pending" {% if train and (not train or train.maint_status=='pending') %}selected{% endif %}>Pending</option>
+            <option value="failed" {% if train and train.maint_status=='failed' %}selected{% endif %}>Failed</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Job Card Number</label>
+          <input type="text" name="job_card_no" class="form-control form-control-sm" placeholder="JC-2024-045"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Last Service Date</label>
+          <input type="date" name="last_service_date" class="form-control form-control-sm"
+                 value="{{ train.last_service_date if train else '' }}"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cleaning & Branding -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold border-bottom py-2 px-3">
+        <i class="bi bi-stars me-2 text-info"></i>Cleaning &amp; Branding
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Cleaning Status</label>
+          <select name="cleaning_status" class="form-select form-select-sm">
+            <option value="done" {% if train and train.cleaning_status=='done' %}selected{% endif %}>Done</option>
+            <option value="pending" {% if train and train.cleaning_status=='pending' %}selected{% endif %}>Pending</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Cleaned By</label>
+          <input type="text" name="cleaned_by" class="form-control form-control-sm" placeholder="Cleaning Team A"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Branding Priority</label>
+          <select name="branding_priority" class="form-select form-select-sm">
+            <option value="high" {% if train and train.branding_priority=='high' %}selected{% endif %}>High</option>
+            <option value="medium" {% if train and train.branding_priority=='medium' %}selected{% endif %}>Medium</option>
+            <option value="low" {% if train and train.branding_priority=='low' %}selected{% endif %}>Low</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Brand Name</label>
+          <input type="text" name="brand_name" class="form-control form-control-sm" placeholder="Express Brand Co."/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3 d-flex gap-2">
+  <button type="submit" class="btn btn-primary">
+    <i class="bi bi-save me-1"></i>{% if edit %}Update Train{% else %}Save Train{% endif %}
+  </button>
+  <a href="{{ url_for('trains.list_trains') }}" class="btn btn-outline-secondary">Cancel</a>
+</div>
+</form>
+{% endblock %}
