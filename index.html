@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conflict Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>🚆 Train Conflict Detection</h1>
+
+    <form method="POST">
+        <input type="number" name="train_number" placeholder="Enter Train Number" required>
+        <button type="submit">Check Conflict</button>
+    </form>
+
+    {% if prediction %}
+        <div class="result">
+            <b>Result:</b> {{ prediction }}
+        </div>
+    {% endif %}
+
+    <br>
+    <a href="/"><button>Home</button></a>
+</div>
+
+</body>
+</html>
